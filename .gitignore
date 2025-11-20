@@ -1,0 +1,18 @@
+# === Sensitive files ===
+.env
+*.pem
+*.p12
+*.key
+*.crt
+
+# === Python cache ===
+__pycache__/
+*.pyc
+
+# === Local configs ===
+.vscode/
+.idea/
+.DS_Store
+
+# === Backup logs ===
+logs/
