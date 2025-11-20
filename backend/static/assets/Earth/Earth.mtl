@@ -1,0 +1,3 @@
+newmtl Mat_Earth
+Kd 1 1 1
+map_Kd 2k_earth_daymap.jpg
