@@ -276,25 +276,36 @@ ${userInput}
       });
 
       data.objects.forEach((objData: any) => {
-        if (objData.orbit && objData.orbit.target) {
-          const parent = map[objData.orbit.target];
-          const child = map[objData.name];
-          if (parent && child) {
-            parent.mesh.add(child.orbit);
-            console.log(
-              "[DEBUG] 부모-자식 연결:",
-              `${objData.name} -> ${objData.orbit.target}`
-            );
-          } else {
-            console.warn(
-              "[DEBUG] 부모/자식 참조 실패:",
-              objData.name,
-              "→",
-              objData.orbit.target
-            );
-          }
-        }
-      });
+  if (!(objData.orbit && objData.orbit.target)) return;
+
+  const parent = map[objData.orbit.target];
+  const child = map[objData.name];
+  if (!child) return;
+
+  // 부모 mesh (없으면 solarSystem을 기본 부모로 사용)
+  const parentMesh: THREE.Object3D = parent?.mesh ?? solarSystem;
+
+  if (!parent) {
+    console.warn(
+      "[DEBUG] 부모/자식 참조 실패:",
+      objData.name,
+      "→",
+      objData.orbit.target,
+      "=> 루트(solarSystem)에 연결합니다."
+    );
+  }
+
+  // 혹시 이미 다른 부모가 있으면 떼어내기
+  if (child.orbit.parent) {
+    child.orbit.parent.remove(child.orbit);
+  }
+  parentMesh.add(child.orbit);
+
+  console.log(
+    "[DEBUG] 부모-자식 연결:",
+    `${objData.name} -> ${objData.orbit.target || "solarSystem"}`
+  );
+});
 
       console.log(
         "[DEBUG] buildSceneFromJSON 완료:",
@@ -491,33 +502,15 @@ ${userInput}
         {/* 3D 영역 */}
 <div className="rounded-2xl bg-white/5 backdrop-blur border border-white/10 p-3 overflow-hidden">
   <div className="relative w-full h-full rounded-xl border border-white/10 bg-[#0b1220]/80">
-    {/* 상단 HUD: Gemini 프롬프트 UI */}
-    <div className="absolute top-3 left-3 z-20 flex items-center gap-2 px-3 py-2 rounded-lg bg-black/60 border border-white/20">
-      <input
-        id="prompt-input"
-        placeholder="예: 태양과 지구를 보여줘"
-        className="w-72 max-w-[60vw] px-3 py-1.5 rounded-md bg-black/40 border border-white/30 text-xs text-cyan-100 outline-none"
-      />
-      <button
-        id="generate-button"
-        className="px-3 py-1.5 rounded-md text-xs font-medium bg-cyan-500/70 text-white hover:bg-cyan-400/80 transition"
-      >
-        생성
-      </button>
-      <span
-        id="status"
-        className="text-[11px] text-cyan-200/80 min-w-[80px]"
-      />
-    </div>
-
-    {/* three.js가 붙을 자리 */}
+    {/* three.js가 붙을 자리 (HUD 입력창 제거) */}
     <div
       id="three-mount"
       ref={threeMountRef}
       className="absolute inset-0 flex items-center justify-center"
     >
+      {/* 초기 안내 문구만 남기고 싶으면 유지, 아니면 이 span도 지워도 됨 */}
       <span className="text-cyan-100/70 text-sm">
-        three.js 연동 예정 공간 ✨
+        장면을 생성하려면 아래 채팅창에 프롬프트를 입력하세요 ✨
       </span>
     </div>
   </div>
