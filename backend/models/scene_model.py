@@ -1,3 +1,4 @@
+'''
 from pydantic import BaseModel, Field
 from typing import List, Optional
 
@@ -21,3 +22,22 @@ class SceneModel(BaseModel):
                 "animations": ["orbit_motion", "self_rotation"]
             }
         }
+'''
+from pydantic import BaseModel
+from typing import List, Optional, Dict
+
+class SceneObjectRef(BaseModel):
+    name: str  # DB에서 object를 찾기 위한 key
+
+class SceneAnimationRef(BaseModel):
+    name: str
+
+class CameraConfig(BaseModel):
+    target: str
+    distance: float = 10
+
+class SceneModel(BaseModel):
+    scenarioType: str
+    objects: List[SceneObjectRef] = []
+    animations: List[SceneAnimationRef] = []
+    camera: Optional[CameraConfig] = None

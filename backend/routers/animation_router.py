@@ -1,6 +1,6 @@
 from fastapi import APIRouter
-from backend.database.mongo_connector import db
-from backend.models.animation_model import AnimationModel
+from database.mongo_connector import db
+from models.animation_model import AnimationModel
 
 router = APIRouter(prefix="/animation", tags=["Animation"])
 animation_collection = db["animations"]

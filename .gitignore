@@ -1,19 +1,56 @@
-# === Sensitive files ===
+# ===========================
+#   SENSITIVE FILES
+# ===========================
 .env
 *.pem
 *.p12
 *.key
 *.crt
 
-# === Python cache ===
+# ===========================
+#  CREDENTIALS / DB CONFIG
+# ===========================
+backend/database/secret_*.py
+
+# ===========================
+#  Python Cache
+# ===========================
 __pycache__/
 *.pyc
 
-# === Local configs ===
+# ===========================
+#  IDE / OS Files
+# ===========================
 .vscode/
 .idea/
 .DS_Store
 
-# === Backup logs ===
+# ===========================
+#  Node.js
+# ===========================
+node_modules/
+dist/
+build/
+
+# ===========================
+#  Logs
+# ===========================
 logs/
-.DS_Store
+*.log
+
+# ===========================
+#  Local DB / Cache Files
+# ===========================
+*.sqlite
+*.db
+
+# ===========================
+#  Three.js / Assets
+# ===========================
+#  선택 (대형 OBJ/MTL/TEXTURE 모델 제외 가능)
+# static/assets/
+
+# ===========================
+#  Test outputs
+# ===========================
+coverage/

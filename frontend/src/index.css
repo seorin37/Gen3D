@@ -1,0 +1,98 @@
+/* src/index.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ───────────────── Theme tokens (우주 팔레트) ───────────────── */
+:root {
+  --text-all: #7aa0d6;          /* 기본 본문색 */
+  --text-dim: #6b8fca;          /* 보조/설명 */
+  --bg-900: #060a12;     /* 깊은 밤하늘 */
+  --bg-800: #0b1220;
+  --accent:   #18c8e8;   /* 청록(오로라) */
+  --accent-2: #3dd7c4;   /* 민트 */
+  --warn:     #ffb347;   /* 태양빛 포인트 */
+  --grid:     #ffffff0a; /* 미세 격자 */
+  --panel:    #ffffff10; /* 카드 배경(유리) */
+  --stroke:   #ffffff1a; /* 테두리 */
+
+  color-scheme: dark;
+  color: rgba(255,255,255,0.87);
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.tone-darkblue, .tone-darkblue * {
+  color: var(--text-all) !important;
+}
+
+/* ───────────────── Reset & layout base ───────────────── */
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+html, body, #root {
+  height: 100%;
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  /* 배경은 StarBackdrop 컴포넌트에서 그림.
+     혹시 StarBackdrop 로드 전 깜빡임 방지용으로 아주 어두운 배경만 둠 */
+  background: linear-gradient(180deg, #08111f 0%, #0a162a 45%, #07101c 100%);
+  color: rgba(255,255,255,0.9);
+}
+
+/* 링크/버튼 등 기본 톤(필요 시 Tailwind 클래스로 덮어씀) */
+a { color: #88aaff; text-decoration: none; }
+a:hover { color: #b8c6ff; }
+
+/* ───────────────── Star / Nebula animations ───────────────── */
+@keyframes twinkle {
+  0%, 100% { opacity: .25 }
+  50%      { opacity: .7  }
+}
+@keyframes twinkle2 {
+  0%, 100% { opacity: .35 }
+  50%      { opacity: .9  }
+}
+@keyframes nebulaDrift {
+  0%   { transform: translate3d(0,0,0) scale(1); }
+  50%  { transform: translate3d(-1.5%, -1%, 0) scale(1.02); }
+  100% { transform: translate3d(0,0,0) scale(1); }
+}
+
+/* Tailwind 유틸처럼 className에서 바로 사용 */
+.animate-twinkle-slow { animation: twinkle    6s ease-in-out infinite; }
+.animate-twinkle-mid  { animation: twinkle2   8s ease-in-out infinite; }
+.animate-twinkle-fast { animation: twinkle  3.8s ease-in-out infinite; }
+.animate-nebula       { animation: nebulaDrift 18s ease-in-out infinite; }
+
+/* ───────────────── Optional: 스크롤바 톤 다운 ───────────────── */
+/* WebKit */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-thumb {
+  background: #ffffff1f;
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-track { background: transparent; }
+/* Firefox */
+* { scrollbar-width: thin; scrollbar-color: #ffffff22 transparent; }
+
+/* ───────────────── Light 모드(옵션) ───────────────── */
+@media (prefers-color-scheme: light) {
+  :root {
+    color-scheme: light;
+    color: #213547;
+  }
+  body { color: #213547; }
+}

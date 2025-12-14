@@ -4,10 +4,15 @@ from dotenv import load_dotenv
 from pymongo.errors import ConnectionFailure, ConfigurationError
 
 # ============================================
-#  .env 파일 로드 (절대경로 기반)
+#  .env 파일 로드 (backend 폴더 기준)
 # ============================================
-# backend/database/mongo_connector.py 기준 → 최상위 프로젝트 폴더로 이동
-env_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), ".env")
+# 1. 현재 파일(mongo_connector.py)의 폴더 경로 구하기
+current_file_path = os.path.abspath(__file__)
+database_dir = os.path.dirname(current_file_path) # .../backend/database
+backend_dir = os.path.dirname(database_dir)       # .../backend
+
+# 2. backend 폴더 안에 있는 .env 파일 지정
+env_path = os.path.join(backend_dir, ".env")
 load_dotenv(env_path)
 
 # ============================================
@@ -16,7 +21,8 @@ load_dotenv(env_path)
 MONGO_URI = os.getenv("MONGO_URI")
 
 if not MONGO_URI:
-    raise ValueError(" MONGO_URI 환경 변수가 설정되어 있지 않습니다. .env 파일을 확인하세요.")
+    # 디버깅을 위해 어디서 찾았는지 에러 메시지에 표시
+    raise ValueError(f" MONGO_URI를 찾을 수 없습니다.\n검색한 .env 위치: {env_path}\n파일이 실제로 존재하는지 확인해주세요.")
 
 # ============================================
 # MongoDB 연결 설정
@@ -24,7 +30,7 @@ if not MONGO_URI:
 try:
     client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=5000)
     client.admin.command("ping")  # 연결 테스트
-    print(" MongoDB 연결 성공")
+    print("MongoDB 연결 성공")
 except (ConnectionFailure, ConfigurationError) as e:
     print(f" MongoDB 연결 실패: {e}")
     raise e
@@ -40,20 +46,15 @@ db = client["text3d"]
 scene_collection = db["scenes"]
 object_collection = db["objects"]
 animation_collection = db["animations"]
-
-#  새로 추가된 컬렉션들 (RAG + 프롬프트용)
-embedding_collection = db["embeddings"]      # RAG 검색용 벡터 저장
-prompt_collection = db["prompt_logs"]        # 프롬프트 기록 저장
+embedding_collection = db["embeddings"]
+prompt_collection = db["prompt_logs"]
 
 # ============================================
 #  연결 확인용 출력
 # ============================================
-print(" 연결된 DB 이름:", db.name)
-print(" 사용 중인 컬렉션 목록:", db.list_collection_names())
+# print(" 연결된 DB 이름:", db.name) 
+# (너무 시끄러우면 위 줄은 주석 처리 하셔도 됩니다)
 
-# ============================================
-#  외부에서 import 할 때 접근할 객체들
-# ============================================
 __all__ = [
     "db",
     "scene_collection",

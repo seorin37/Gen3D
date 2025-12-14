@@ -1,6 +1,8 @@
 from fastapi import APIRouter
-from backend.database.mongo_connector import db
-from backend.models.object_model import Object3D
+from database.mongo_connector import db
+from models.object_model import Object3D
+
+
 
 router = APIRouter(prefix="/object", tags=["Object"])
 
@@ -16,3 +18,9 @@ def get_object(name: str):
         return {"error": "Object not found"}
     obj["_id"] = str(obj["_id"])
     return obj
+
+# ✅ 전체 오브젝트 조회 추가
+@router.get("/")
+def get_all_objects():
+    objects = list(db.objects.find({}, {"_id": 0}))
+    return objects

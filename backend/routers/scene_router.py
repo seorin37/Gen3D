@@ -1,6 +1,8 @@
+'''
 from fastapi import APIRouter
-from backend.database.mongo_connector import db
-from backend.models.scene_model import SceneModel
+from database.mongo_connector import db
+from models.scene_model import SceneModel
+
 
 router = APIRouter(prefix="/scene", tags=["Scene"])
 scene_collection = db["scenes"]
@@ -36,3 +38,111 @@ def get_scene(scene_name: str):
         "objects": objects,
         "animations": animations
     }
+'''
+from fastapi import APIRouter
+from bson import ObjectId, Regex
+from database.mongo_connector import db
+from models.scene_model import SceneModel
+
+router = APIRouter(prefix="/scene", tags=["Scene"])
+
+scene_collection = db["scenes"]
+object_collection = db["objects"]
+animation_collection = db["animations"]
+
+
+# =======================================================
+#  Helper: Object 이름 목록을 풀(full document)로 확장
+#  — 대소문자 무시 검색(불일치 해결 핵심)
+# =======================================================
+def resolve_objects(object_refs):
+    resolved = []
+
+    for ref in object_refs:
+        name = ref.name.strip()
+
+        # 대소문자 무시 검색
+        obj = object_collection.find_one({"name": Regex(f"^{name}$", "i")})
+
+        if not obj:
+            print(f"[WARN] Object '{name}' not found in DB")
+            continue
+
+        obj["_id"] = str(obj["_id"])
+        resolved.append(obj)
+
+    return resolved
+
+
+# =======================================================
+#  Helper: Animation 이름 목록 확장
+# =======================================================
+def resolve_animations(anim_refs):
+    resolved = []
+
+    for ref in anim_refs:
+        name = ref.name.strip()
+
+        anim = animation_collection.find_one({"name": Regex(f"^{name}$", "i")})
+
+        if not anim:
+            print(f"[WARN] Animation '{name}' not found in DB")
+            continue
+
+        anim["_id"] = str(anim["_id"])
+        resolved.append(anim)
+
+    return resolved
+
+
+
+# =======================================================
+#  Scene 저장
+# =======================================================
+@router.post("/save")
+def save_scene(scene: SceneModel):
+
+    expanded_objects = resolve_objects(scene.objects)
+    expanded_animations = resolve_animations(scene.animations)
+
+    doc = {
+        "scenarioType": scene.scenarioType,
+        "objects": expanded_objects,
+        "animations": expanded_animations,
+        "camera": scene.camera.dict() if scene.camera else None
+    }
+
+    result = scene_collection.insert_one(doc)
+
+    return {
+        "message": "Scene saved",
+        "id": str(result.inserted_id)
+    }
+
+
+
+# =======================================================
+#  Scene 조회
+# =======================================================
+@router.get("/{scene_id}")
+def get_scene(scene_id: str):
+    scene = scene_collection.find_one({"_id": ObjectId(scene_id)})
+    if not scene:
+        return {"error": "Scene not found"}
+
+    scene["_id"] = str(scene["_id"])
+    return scene
+
+
+
+# =======================================================
+#  Scene 전체 목록 조회
+# =======================================================
+@router.get("/")
+def list_scenes():
+    scenes = list(scene_collection.find({}, {"objects": 0, "animations": 0}))
+
+    for s in scenes:
+        s["_id"] = str(s["_id"])
+
+    return scenes
