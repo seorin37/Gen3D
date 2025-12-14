@@ -44,7 +44,7 @@ text3d_project/
 │
 ├── .gitignore                   # 보안 및 Git 관리 파일
 └── README.md                    # (이 문서)
-
+'''
 
 ---
 # 3. 자연어 처리 → 장면 생성 전체 흐름
